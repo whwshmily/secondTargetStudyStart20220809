@@ -3,10 +3,13 @@ package game.tank.impl;
 import game.bullet.BaseBullet;
 import game.bullet.impl.Bullet;
 import game.enumerate.Dir;
+import game.enumerate.TeamGroup;
 import game.tank.BaseTank;
 import util.ProjectCache;
+import util.ResourcesUtil;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -19,9 +22,10 @@ public class PlayerTank extends BaseTank {
     private boolean up = false;
     private long intervalTime = Long.parseLong(ProjectCache.getValue("player-fire-interval-time"));
     private Timestamp fireTime;
+    private int liveNum;
 
-
-    public PlayerTank() {
+    public PlayerTank(TeamGroup teamGroup) {
+        super(teamGroup);
         width = Integer.parseInt(ProjectCache.getValue("player-tank-width"));
         high = Integer.parseInt(ProjectCache.getValue("player-tank-high"));
         speed = Integer.parseInt(ProjectCache.getValue("player-tank-speed"));
@@ -36,7 +40,10 @@ public class PlayerTank extends BaseTank {
     public void paint(Graphics g) {
         Color color = g.getColor();
         g.setColor(Color.black);
-        g.drawRect(x, y, width, high);
+        BufferedImage dirImage = ResourcesUtil.getDirBufferImage("player1", dir.getValue());
+        width = dirImage.getWidth();
+        high = dirImage.getHeight();
+        g.drawImage(dirImage, x, y - high, width, high, null);
         g.setColor(color);
     }
 
@@ -44,19 +51,23 @@ public class PlayerTank extends BaseTank {
     public void move() {
         if (left) {
             dir = Dir.LEFT;
-            x -= speed;
+            if (x > 0)
+                x -= speed;
         }
         if (right) {
             dir = Dir.RIGHT;
-            x += speed;
+            if (x < FRAME_WIDTH - width)
+                x += speed;
         }
         if (up) {
             dir = Dir.UP;
-            y -= speed;
+            if (y > high * 1.5)
+                y -= speed;
         }
         if (down) {
             dir = Dir.DOWN;
-            y += speed;
+            if (y < FRAME_HEIGHT)
+                y += speed;
         }
     }
 
@@ -68,7 +79,7 @@ public class PlayerTank extends BaseTank {
             fireTime = new Timestamp(System.currentTimeMillis());
         }
 
-        bullets.add(new Bullet(x + width / 2, y + high / 2, dir));
+        bullets.add(new Bullet(x + width / 2, y - high / 2, dir, getTeamGroup()));
     }
 
     public void setRight(boolean right) {
@@ -85,5 +96,26 @@ public class PlayerTank extends BaseTank {
 
     public void setUp(boolean up) {
         this.up = up;
+    }
+
+    public int getLiveNum() {
+        return liveNum;
+    }
+
+    public void setLiveNum(int liveNum){
+        this.liveNum = liveNum;
+    }
+
+    public void resurrection(){
+        width = Integer.parseInt(ProjectCache.getValue("player-tank-width"));
+        high = Integer.parseInt(ProjectCache.getValue("player-tank-high"));
+        speed = Integer.parseInt(ProjectCache.getValue("player-tank-speed"));
+        x = Integer.parseInt(ProjectCache.getValue("player-tank-x"));
+        y = Integer.parseInt(ProjectCache.getValue("player-tank-y"));
+        dir = Dir.UP;
+    }
+
+    public Rectangle getRectangleShape() {
+        return new Rectangle(x, y - high, width, high);
     }
 }

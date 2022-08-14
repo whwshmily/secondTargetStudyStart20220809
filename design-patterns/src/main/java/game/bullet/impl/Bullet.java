@@ -2,14 +2,18 @@ package game.bullet.impl;
 
 import game.bullet.BaseBullet;
 import game.enumerate.Dir;
+import game.enumerate.TeamGroup;
 import util.ProjectCache;
+import util.ResourcesUtil;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 
 public class Bullet extends BaseBullet {
 
-    public Bullet() {
+    public Bullet(TeamGroup teamGroup) {
+        super(teamGroup);
         width = Integer.parseInt(ProjectCache.getValue("bullet-width"));
         high = Integer.parseInt(ProjectCache.getValue("bullet-high"));
         speed = Integer.parseInt(ProjectCache.getValue("bullet-speed"));
@@ -18,19 +22,24 @@ public class Bullet extends BaseBullet {
         dir = Dir.UP;
     }
 
-    public Bullet(int x, int y, Dir dir) {
+    public Bullet(int x, int y, Dir dir, TeamGroup teamGroup) {
+        super(teamGroup);
         width = Integer.parseInt(ProjectCache.getValue("bullet-width"));
         high = Integer.parseInt(ProjectCache.getValue("bullet-high"));
         speed = Integer.parseInt(ProjectCache.getValue("bullet-speed"));
-        this.x = x - width / 2;
-        this.y = y - high / 2;
+        this.x = x;
+        this.y = y;
         this.dir = dir;
     }
 
     public void paint(Graphics g) {
         Color color = g.getColor();
-        g.setColor(Color.blue);
-        g.drawOval(x, y, width, high);
+        g.setColor(Color.black);
+        BufferedImage dirImage = ResourcesUtil.getDirBufferImage("bullet", dir.getValue());
+        width = dirImage.getWidth();
+        high = dirImage.getHeight();
+        g.drawImage(dirImage, x - width / 2, y - high / 2, width, high, null);
+//        g.drawOval(x, y, width, high);
         move();
     }
 
@@ -47,8 +56,12 @@ public class Bullet extends BaseBullet {
         if (dir == Dir.DOWN) {
             y += speed;
         }
-        if (x < 0 || x > 800 || y < 0 || y > 600) {
+        if (x < 0 || x > FRAME_WIDTH || y < 0 || y > FRAME_HEIGHT) {
             this.isDie = true;
         }
+    }
+
+    public Rectangle getRectangleShape() {
+        return new Rectangle(x - width / 2, y - high / 2, width, high);
     }
 }
