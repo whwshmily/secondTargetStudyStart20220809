@@ -41,7 +41,7 @@ public class ComputerTankUtil {
 
     public static int getX(int width) {
         int num = getRandomNumber(3);
-        return num == 0 ? X1 : (num == 1 ? X1 - width / 2 : X3 - width);
+        return num == 0 ? X1 : (num == 1 ? X2 - width / 2 : X3 - width);
     }
 
     public static boolean isFire() {

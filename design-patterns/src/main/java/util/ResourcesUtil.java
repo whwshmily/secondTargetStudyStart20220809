@@ -3,7 +3,6 @@ package util;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.HashMap;
 
 public class ResourcesUtil {
@@ -20,10 +19,14 @@ public class ResourcesUtil {
     private static final String TANK_IMAGES_COMPUTER_LEFT = "images/tankL.gif";
     private static final String TANK_IMAGES_COMPUTER_RIGHT = "images/tankR.gif";
     private static final String TANK_IMAGES_COMPUTER_DOWN = "images/tankD.gif";
-    private static final String BULLET_IMAGES_LEFT = "images/bulletL.gif";
-    private static final String BULLET_IMAGES_RIGHT = "images/bulletR.gif";
-    private static final String BULLET_IMAGES_UP = "images/bulletU.gif";
-    private static final String BULLET_IMAGES_DOWN = "images/bulletD.gif";
+    private static final String BULLET_IMAGES_LEFT = "images/bulletL.png";
+    private static final String BULLET_IMAGES_RIGHT = "images/bulletR.png";
+    private static final String BULLET_IMAGES_UP = "images/bulletU.png";
+    private static final String BULLET_IMAGES_DOWN = "images/bulletD.png";
+    private static final String COMPUTER_BULLET_IMAGES_DOWN = "images/bulletD.gif";
+    private static final String COMPUTER_BULLET_IMAGES_LEFT = "images/bulletL.gif";
+    private static final String COMPUTER_BULLET_IMAGES_UP = "images/bulletU.gif";
+    private static final String COMPUTER_BULLET_IMAGES_RIGHT = "images/bulletR.gif  ";
 
     private static final HashMap<String, BufferedImage> BUFFER_IMAGE_MAPS = new HashMap<String, BufferedImage>();
 
@@ -38,9 +41,13 @@ public class ResourcesUtil {
             BufferedImage PLAYER2_LEFT = ImageIO.read(classLoader.getResourceAsStream(TANK_IMAGES_PLAYER2_LEFT));
             BufferedImage PLAYER2_RIGHT = ImageIO.read(classLoader.getResourceAsStream(TANK_IMAGES_PLAYER2_RIGHT));
             BufferedImage PLAYER2_DOWN = ImageIO.read(classLoader.getResourceAsStream(TANK_IMAGES_PLAYER2_DOWN));
+            BufferedImage COMPUTER_BULLET_UP = ImageIO.read(classLoader.getResourceAsStream(COMPUTER_BULLET_IMAGES_UP));
             BufferedImage BULLET_UP = ImageIO.read(classLoader.getResourceAsStream(BULLET_IMAGES_UP));
+            BufferedImage COMPUTER_BULLET_RIGHT = ImageIO.read(classLoader.getResourceAsStream(COMPUTER_BULLET_IMAGES_RIGHT));
             BufferedImage BULLET_RIGHT = ImageIO.read(classLoader.getResourceAsStream(BULLET_IMAGES_RIGHT));
+            BufferedImage COMPUTER_BULLET_DOWN = ImageIO.read(classLoader.getResourceAsStream(COMPUTER_BULLET_IMAGES_DOWN));
             BufferedImage BULLET_DOWN = ImageIO.read(classLoader.getResourceAsStream(BULLET_IMAGES_DOWN));
+            BufferedImage COMPUTER_BULLET_LEFT = ImageIO.read(classLoader.getResourceAsStream(COMPUTER_BULLET_IMAGES_LEFT));
             BufferedImage BULLET_LEFT = ImageIO.read(classLoader.getResourceAsStream(BULLET_IMAGES_LEFT));
             BufferedImage COMPUTER_UP = ImageIO.read(classLoader.getResourceAsStream(TANK_IMAGES_COMPUTER_UP));
             BufferedImage COMPUTER_LEFT = ImageIO.read(classLoader.getResourceAsStream(TANK_IMAGES_COMPUTER_LEFT));
@@ -62,7 +69,11 @@ public class ResourcesUtil {
             BUFFER_IMAGE_MAPS.put("COMPUTER_LEFT", COMPUTER_LEFT);
             BUFFER_IMAGE_MAPS.put("COMPUTER_RIGHT", COMPUTER_RIGHT);
             BUFFER_IMAGE_MAPS.put("COMPUTER_DOWN", COMPUTER_DOWN);
-        } catch (IOException e) {
+            BUFFER_IMAGE_MAPS.put("COMPUTER_BULLET_DOWN", COMPUTER_BULLET_DOWN);
+            BUFFER_IMAGE_MAPS.put("COMPUTER_BULLET_LEFT", COMPUTER_BULLET_LEFT);
+            BUFFER_IMAGE_MAPS.put("COMPUTER_BULLET_UP", COMPUTER_BULLET_UP);
+            BUFFER_IMAGE_MAPS.put("COMPUTER_BULLET_RIGHT", COMPUTER_BULLET_RIGHT);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

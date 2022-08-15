@@ -93,6 +93,9 @@ public class ComputerTank extends BaseTank {
 
     public void fire(List<BaseBullet> bullets) {
         boolean fire = ComputerTankUtil.isFire();
+        if(!fire){
+            return;
+        }
         if (fireTime != null && System.currentTimeMillis() - fireTime.getTime() < intervalTime) {
             return;
         } else {

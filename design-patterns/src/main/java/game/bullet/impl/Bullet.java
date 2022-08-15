@@ -11,6 +11,7 @@ import java.awt.image.BufferedImage;
 
 
 public class Bullet extends BaseBullet {
+    private String name;
 
     public Bullet(TeamGroup teamGroup) {
         super(teamGroup);
@@ -20,6 +21,7 @@ public class Bullet extends BaseBullet {
         x = Integer.parseInt(ProjectCache.getValue("bullet-x"));
         y = Integer.parseInt(ProjectCache.getValue("bullet-y"));
         dir = Dir.UP;
+        name = teamGroup.equals(TeamGroup.PLAYER) ? "bullet" : "computer_bullet";
     }
 
     public Bullet(int x, int y, Dir dir, TeamGroup teamGroup) {
@@ -30,12 +32,13 @@ public class Bullet extends BaseBullet {
         this.x = x;
         this.y = y;
         this.dir = dir;
+        name = teamGroup.equals(TeamGroup.PLAYER) ? "bullet" : "computer_bullet";
     }
 
     public void paint(Graphics g) {
         Color color = g.getColor();
         g.setColor(Color.black);
-        BufferedImage dirImage = ResourcesUtil.getDirBufferImage("bullet", dir.getValue());
+        BufferedImage dirImage = ResourcesUtil.getDirBufferImage(name, dir.getValue());
         width = dirImage.getWidth();
         high = dirImage.getHeight();
         g.drawImage(dirImage, x - width / 2, y - high / 2, width, high, null);

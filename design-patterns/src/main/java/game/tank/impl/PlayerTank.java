@@ -40,7 +40,7 @@ public class PlayerTank extends BaseTank {
     public void paint(Graphics g) {
         Color color = g.getColor();
         g.setColor(Color.black);
-        BufferedImage dirImage = ResourcesUtil.getDirBufferImage("player1", dir.getValue());
+        BufferedImage dirImage = ResourcesUtil.getDirBufferImage("player2", dir.getValue());
         width = dirImage.getWidth();
         high = dirImage.getHeight();
         g.drawImage(dirImage, x, y - high, width, high, null);
