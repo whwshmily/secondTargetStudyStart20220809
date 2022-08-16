@@ -1,9 +1,10 @@
 package game.tank.impl;
 
 import game.bullet.BaseBullet;
-import game.bullet.impl.Bullet;
 import game.enumerate.Dir;
 import game.enumerate.TeamGroup;
+import game.strategy.bulletStrategy.BulletStrategy;
+import game.strategy.bulletStrategy.DefaultComputerStrategy;
 import game.tank.BaseTank;
 import util.ComputerTankUtil;
 import util.ProjectCache;
@@ -20,6 +21,7 @@ public class ComputerTank extends BaseTank {
     private long intervalTime = Long.parseLong(ProjectCache.getValue("computer-fire-interval-time"));
     private Timestamp fireTime;
     private boolean isMoving = true;
+    private String name = (int) (Math.random() * 2) == 1 ? "computer" : "player2";
 
     private final List<BaseBullet> bullets;
 
@@ -38,27 +40,29 @@ public class ComputerTank extends BaseTank {
     public void paint(Graphics g) {
         Color color = g.getColor();
         g.setColor(Color.black);
-        dirImage = ResourcesUtil.getDirBufferImage("computer", dir.getValue());
+        dirImage = ResourcesUtil.getDirBufferImage(name, dir.getValue());
         width = dirImage.getWidth();
         high = dirImage.getHeight();
-        g.drawImage(dirImage, x, y+high/2, width, high, null);
+        g.drawImage(dirImage, x, y + high / 2, width, high, null);
         g.setColor(color);
         this.move();
     }
-    public void isChangeDir(){
+
+    public void isChangeDir() {
         Dir dir = ComputerTankUtil.changeTankDir();
         if (dir != null) {
             this.dir = dir;
             this.isMoving = true;
         }
     }
+
     public void move() {
         this.isChangeDir();
         if (!this.isMoving) {
             return;
         }
 
-        this.fire(bullets);
+        this.fire(bullets, new DefaultComputerStrategy());
         if (this.dir == Dir.LEFT) {
             if (x < 0) {
                 this.isMoving = false;
@@ -91,9 +95,9 @@ public class ComputerTank extends BaseTank {
         }
     }
 
-    public void fire(List<BaseBullet> bullets) {
+    public void fire(List<BaseBullet> bullets, BulletStrategy<BaseTank> strategy) {
         boolean fire = ComputerTankUtil.isFire();
-        if(!fire){
+        if (!fire) {
             return;
         }
         if (fireTime != null && System.currentTimeMillis() - fireTime.getTime() < intervalTime) {
@@ -101,7 +105,7 @@ public class ComputerTank extends BaseTank {
         } else {
             fireTime = new Timestamp(System.currentTimeMillis());
         }
-        bullets.add(new Bullet(x + width / 2, y + high, dir, getTeamGroup()));
+        bullets.addAll(strategy.produceBullet(this));
     }
 
     public Rectangle getRectangleShape() {

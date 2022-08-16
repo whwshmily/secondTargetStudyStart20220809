@@ -3,6 +3,9 @@ package game.frame;
 import game.bullet.BaseBullet;
 import game.check.ImpactCheck;
 import game.enumerate.TeamGroup;
+import game.strategy.bulletStrategy.BulletStrategy;
+import game.strategy.bulletStrategy.DefaultPlayerStrategy;
+import game.strategy.bulletStrategy.ThreeBulletStrategy;
 import game.tank.BaseTank;
 import game.tank.impl.ComputerTank;
 import game.tank.impl.PlayerTank;
@@ -28,6 +31,9 @@ public class PlayFrame extends Frame {
     private static final int Y = Integer.parseInt(ProjectCache.getValue("frame-y"));
     private static final int WIDTH = Integer.parseInt(ProjectCache.getValue("frame-width"));
     private static final int HIGH = Integer.parseInt(ProjectCache.getValue("frame-high"));
+
+    private static final BulletStrategy<BaseTank> STRATEGY1 = new DefaultPlayerStrategy();
+    private static final BulletStrategy<BaseTank> STRATEGY2 = new ThreeBulletStrategy();
 
     private ImpactCheck impactCheck;
 
@@ -65,7 +71,7 @@ public class PlayFrame extends Frame {
     @Override
     public void paint(Graphics g) {
         Color color = g.getColor();
-        g.setColor(Color.black);
+        g.setColor(Color.white);
         g.drawString("子弹的数量：" + BULLETS.size(), 30, 50);
         g.drawString("剩余敌人坦克数量：" + (20 - createdComputedTankCounts), 30, 70);
         g.drawString("剩余命数：" + player1.getLiveNum(), 30, 90);
@@ -140,7 +146,7 @@ public class PlayFrame extends Frame {
         if (image == null) image = this.createImage(WIDTH, HIGH);
         Graphics graphics = image.getGraphics();
         Color color = graphics.getColor();
-        graphics.setColor(Color.white);
+        graphics.setColor(Color.black);
         graphics.fillRect(0, 0, WIDTH, HIGH);
         graphics.setColor(color);
         paint(graphics);
@@ -158,9 +164,9 @@ public class PlayFrame extends Frame {
         }
 
         //此处可以改成策略模式 小于几个的时候生成tank数量不一样
-//        if (CREATED_COMPUTED_TANK_COUNTS == 20) {
-//            return;
-//        }
+        if (createdComputedTankCounts == 20) {
+            return;
+        }
         if (computerTank.size() < 6) {
             createdComputedTankCounts++;
             computerTank.add(new ComputerTank(TeamGroup.COMPUTER, BULLETS));
@@ -200,7 +206,7 @@ public class PlayFrame extends Frame {
                     player1.setUp(result);
                     break;
                 case KeyEvent.VK_SPACE:
-                    player1.fire(BULLETS);
+                    player1.fire(BULLETS, getBulletStrategy(player1));
                     break;
             }
         }
@@ -213,6 +219,12 @@ public class PlayFrame extends Frame {
         public void windowClosing(WindowEvent e) {
             System.exit(0);
         }
+    }
+
+    private BulletStrategy<BaseTank> getBulletStrategy(BaseTank tank) {
+        //其实这个random 应该从参数tank中获取 tank可能吃一些道具 改变子弹 获取标志位生成不同的策略
+        int random = (int) (Math.random() * 2);
+        return random == 0 ? STRATEGY1 : STRATEGY2;
     }
 
 }

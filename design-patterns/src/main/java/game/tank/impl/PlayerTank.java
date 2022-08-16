@@ -1,9 +1,9 @@
 package game.tank.impl;
 
 import game.bullet.BaseBullet;
-import game.bullet.impl.Bullet;
 import game.enumerate.Dir;
 import game.enumerate.TeamGroup;
+import game.strategy.bulletStrategy.BulletStrategy;
 import game.tank.BaseTank;
 import util.ProjectCache;
 import util.ResourcesUtil;
@@ -72,14 +72,14 @@ public class PlayerTank extends BaseTank {
     }
 
     @Override
-    public void fire(List<BaseBullet> bullets) {
+    public void fire(List<BaseBullet> bullets, BulletStrategy<BaseTank> strategy) {
         if (fireTime != null && System.currentTimeMillis() - fireTime.getTime() < intervalTime) {
             return;
         } else {
             fireTime = new Timestamp(System.currentTimeMillis());
         }
 
-        bullets.add(new Bullet(x + width / 2, y - high / 2, dir, getTeamGroup()));
+        bullets.addAll(strategy.produceBullet(this));
     }
 
     public void setRight(boolean right) {

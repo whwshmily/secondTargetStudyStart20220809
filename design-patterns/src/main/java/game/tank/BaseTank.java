@@ -4,6 +4,7 @@ import game.bullet.BaseBullet;
 import game.check.BaseShape;
 import game.enumerate.Dir;
 import game.enumerate.TeamGroup;
+import game.strategy.bulletStrategy.BulletStrategy;
 import lombok.Data;
 import util.ProjectCache;
 
@@ -34,5 +35,5 @@ public abstract class BaseTank implements BaseShape {
 
     public abstract void move();
 
-    public abstract void fire(List<BaseBullet> bullets);
+    public abstract void fire(List<BaseBullet> bullets, BulletStrategy<BaseTank> strategy);
 }
