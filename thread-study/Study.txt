@@ -43,7 +43,7 @@
 5 线程的打断interrupt
   interrupt() 不是打断线程 只是设置了一个标志位 看到这个标志位 做怎么处理由线程处理
   isInterrupted() 查询线程是否被打断过 查询标志位
-  interrupted() 静态的  查询当前线程是否被打断过 重置标志位
+  interrupted() 静态的  查询当前线程是否被打断过 重置标志位 查询当前标志位的值 并且把标志位值为false(重置标志位)
   让线程结束的一种方案 假如一个线程一直循环处理，然后每隔一段时间检测标志位是否结束
 
   sleep wait join 都会抛出interruptException异常 如果这时候进行interrupt 就会抛这个异常
