@@ -1,8 +1,11 @@
 package game.frame;
 
-import game.bullet.BaseBullet;
+import game.bullet.impl.Bullet;
 import game.check.ImpactCheck;
-import game.enumerate.TeamGroup;
+import game.enumerate.FieldActionEnum;
+import game.face.DefaultFace;
+import game.face.Face;
+import game.face.GameObject;
 import game.strategy.bulletStrategy.BulletStrategy;
 import game.strategy.bulletStrategy.DefaultPlayerStrategy;
 import game.strategy.bulletStrategy.ThreeBulletStrategy;
@@ -16,8 +19,6 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 问题 ： 把属性抽象出来 这些属性应该属性坦克的 不应该出现在游戏界面的属性里面
@@ -32,22 +33,24 @@ public class PlayFrame extends Frame {
     private static final int WIDTH = Integer.parseInt(ProjectCache.getValue("frame-width"));
     private static final int HIGH = Integer.parseInt(ProjectCache.getValue("frame-high"));
 
-    private static final BulletStrategy<BaseTank> STRATEGY1 = new DefaultPlayerStrategy();
-    private static final BulletStrategy<BaseTank> STRATEGY2 = new ThreeBulletStrategy();
+    private static final BulletStrategy<GameObject> STRATEGY1 = new DefaultPlayerStrategy();
+    private static final BulletStrategy<GameObject> STRATEGY2 = new ThreeBulletStrategy();
 
-    private ImpactCheck impactCheck;
+    private ImpactCheck<GameObject> impactCheck;
 
-    PlayerTank player1 = new PlayerTank(TeamGroup.PLAYER);
+//    PlayerTank player1 = new PlayerTank(TeamGroup.PLAYER);
+//
+//    List<BaseTank> computerTank = new ArrayList<BaseTank>(Integer.parseInt(ProjectCache.getValue("computer-tank-live-num")));
+//
+//    private final List<BaseBullet> BULLETS = new ArrayList<BaseBullet>();
+//
+//    private volatile int createdComputedTankCounts = 0;
+//
+//    private boolean isGameOver = false;
 
-    List<BaseTank> computerTank = new ArrayList<BaseTank>(Integer.parseInt(ProjectCache.getValue("computer-tank-live-num")));
+    private Face<GameObject> face = new DefaultFace();
 
-    private final List<BaseBullet> BULLETS = new ArrayList<BaseBullet>();
-
-    private volatile int createdComputedTankCounts = 0;
-
-    private boolean isGameOver = false;
-
-    public PlayFrame(String title, ImpactCheck impactCheck) {
+    public PlayFrame(String title, ImpactCheck<GameObject> impactCheck) {
         this.impactCheck = impactCheck;
         //设置标题
         this.setTitle(title);
@@ -66,76 +69,27 @@ public class PlayFrame extends Frame {
 
         //设置位置和大小
         this.setBounds(X, Y, WIDTH, HIGH);
+        face.init();
     }
 
     @Override
     public void paint(Graphics g) {
         Color color = g.getColor();
+        GameObject element = face.getElement(PlayerTank.class);
+        if (element == null) {
+            throw new RuntimeException("获取主站坦克异常");
+        }
         g.setColor(Color.white);
-        g.drawString("子弹的数量：" + BULLETS.size(), 30, 50);
-        g.drawString("剩余敌人坦克数量：" + (20 - createdComputedTankCounts), 30, 70);
-        g.drawString("剩余命数：" + player1.getLiveNum(), 30, 90);
-        g.drawString("场上tank数量：" + computerTank.size(), 30, 110);
-        g.setColor(color);
-        if (isGameOver) {
+        g.drawString("子弹的数量：" + face.getElementCounts(Bullet.class), 30, 50);
+        g.drawString("剩余敌人坦克数量：" + (20 - face.getAlCreateComputerTankCounts()), 30, 70);
+        g.drawString("剩余命数：" + element.getLiveNum(), 30, 90);
+        g.drawString("场上tank数量：" + face.getElementCounts(ComputerTank.class), 30, 110);
+        if (face.isGameOver()) {
             g.drawString("GAME_OVER", 500, 300);
         }
-        for (int j = 0; j < computerTank.size(); j++) {
-            BaseTank baseTank = computerTank.get(j);
-            boolean collide1 = impactCheck.isCollide(baseTank, player1);
-            if (collide1) {
-                player1.setDie(true);
-            }
-            for (int i = 0; i < BULLETS.size(); i++) {
-                BaseBullet bullet = BULLETS.get(i);
-                if (!bullet.getTeamGroup().equals(player1.getTeamGroup())) {
-                    boolean collide = impactCheck.isCollide(player1, bullet);
-                    if (collide) {
-                        bullet.setDie(true);
-                        player1.setDie(true);
-                    }
-                }
-                if (!bullet.getTeamGroup().equals(baseTank.getTeamGroup())) {
-                    boolean collide = impactCheck.isCollide(baseTank, bullet);
-                    if (collide) {
-                        bullet.setDie(true);
-                        baseTank.setDie(true);
-                        computerTank.remove(baseTank);
-                    }
-                }
-            }
-
-        }
-
-        for (int i = 0; i < BULLETS.size(); i++) {
-            BaseBullet bullet = BULLETS.get(i);
-            for (int j = 0; j < BULLETS.size(); j++) {
-                BaseBullet bullet1 = BULLETS.get(j);
-                if (!bullet.getTeamGroup().equals(bullet1.getTeamGroup())) {
-                    boolean collide = impactCheck.isCollide(bullet1, bullet);
-                    if (collide) {
-                        bullet.setDie(true);
-                        bullet1.setDie(true);
-                    }
-                }
-            }
-        }
-
-        if (!player1.isDie()) {
-            player1.paint(g);
-        }
-        for (int i = 0; i < BULLETS.size(); i++) {
-            BaseBullet bullet = BULLETS.get(i);
-            if (bullet.isDie()) {
-                BULLETS.remove(i);
-                continue;
-            }
-            bullet.paint(g);
-        }
-        for (int i = 0; i < computerTank.size(); i++) {
-            BaseTank baseTank = computerTank.get(i);
-            baseTank.paint(g);
-        }
+        g.setColor(color);
+        face.prevCheckElementStatus(impactCheck);
+        face.paintElement(g);
     }
 
     //消除闪烁
@@ -155,33 +109,18 @@ public class PlayFrame extends Frame {
 
 
     public void gameDetection() {
-        if (player1.isDie() && player1.getLiveNum() > 0) {
-            player1.setLiveNum(player1.getLiveNum() - 1);
-            player1.resurrection();
-            player1.setDie(false);
-        } else if (player1.isDie() && player1.getLiveNum() == 0) {
-            this.isGameOver = true;
-        }
-
-        //此处可以改成策略模式 小于几个的时候生成tank数量不一样
-        if (createdComputedTankCounts == 20) {
-            return;
-        }
-        if (computerTank.size() < 6) {
-            createdComputedTankCounts++;
-            computerTank.add(new ComputerTank(TeamGroup.COMPUTER, BULLETS));
-        }
+        face.gameDetection();
     }
 
     public int getCreatedComputedTankCounts() {
-        return createdComputedTankCounts;
+        return face.getAlCreateComputerTankCounts();
     }
 
     private class PlayKeyAdapter extends KeyAdapter {
         @Override
         public void keyPressed(KeyEvent e) {
             operateTank(e, 1);
-            player1.move();
+            face.executeElementSpecialField(FieldActionEnum.MOVE, null);
         }
 
         @Override
@@ -192,6 +131,7 @@ public class PlayFrame extends Frame {
         private void operateTank(KeyEvent e, int type) {
             boolean result = type == 1;
             int keyCode = e.getKeyCode();
+            PlayerTank player1 = (PlayerTank) face.getElement(PlayerTank.class);
             switch (keyCode) {
                 case KeyEvent.VK_LEFT:
                     player1.setLeft(result);
@@ -206,7 +146,7 @@ public class PlayFrame extends Frame {
                     player1.setUp(result);
                     break;
                 case KeyEvent.VK_SPACE:
-                    player1.fire(BULLETS, getBulletStrategy(player1));
+                    face.executeElementSpecialField(FieldActionEnum.FIRE, getBulletStrategy(player1));
                     break;
             }
         }
@@ -221,10 +161,9 @@ public class PlayFrame extends Frame {
         }
     }
 
-    private BulletStrategy<BaseTank> getBulletStrategy(BaseTank tank) {
+    private BulletStrategy<GameObject> getBulletStrategy(BaseTank tank) {
         //其实这个random 应该从参数tank中获取 tank可能吃一些道具 改变子弹 获取标志位生成不同的策略
         int random = (int) (Math.random() * 2);
         return random == 0 ? STRATEGY1 : STRATEGY2;
     }
-
 }

@@ -1,39 +1,63 @@
 package game.tank;
 
-import game.bullet.BaseBullet;
-import game.check.BaseShape;
-import game.enumerate.Dir;
+import game.check.ImpactCheck;
+import game.enumerate.FieldActionEnum;
 import game.enumerate.TeamGroup;
+import game.face.GameObject;
 import game.strategy.bulletStrategy.BulletStrategy;
-import lombok.Data;
-import util.ProjectCache;
 
 import java.awt.*;
 import java.util.List;
 
-@Data
-public abstract class BaseTank implements BaseShape {
-    protected int width;
-    protected int high;
-    protected int speed;
-    protected int x;
-    protected int y;
-    protected Dir dir;
 
-    protected static long FRAME_WIDTH = Long.parseLong(ProjectCache.getValue("frame-width"));
-    protected static long FRAME_HEIGHT = Long.parseLong(ProjectCache.getValue("frame-high"));
-
-    private final TeamGroup teamGroup;
-
-    private boolean isDie;
+public abstract class BaseTank extends GameObject {
 
     public BaseTank(TeamGroup teamGroup) {
-        this.teamGroup = teamGroup;
+        super(teamGroup);
     }
 
-    public abstract void paint(Graphics g);
+    protected abstract void paint(Graphics g);
 
-    public abstract void move();
+    protected abstract void move();
 
-    public abstract void fire(List<BaseBullet> bullets, BulletStrategy<BaseTank> strategy);
+    protected abstract void fire(List<GameObject> elements, BulletStrategy<GameObject> strategy);
+
+    @Override
+    public void statusCheck(List<GameObject> gameObjects, ImpactCheck<GameObject> impactCheck) {
+        for (int i = 0; i < gameObjects.size(); i++) {
+            if (gameObjects.get(i) == this) {
+                return;
+            }
+            if (this.teamGroup.equals(gameObjects.get(i).getTeamGroup())) {
+                continue;
+            }
+            boolean collide = impactCheck.isCollide(this, gameObjects.get(i));
+            if (collide) {
+                this.setDie(true);
+                gameObjects.get(i).setDie(true);
+            }
+            if (gameObjects.get(i) instanceof BaseTank && collide) {
+                gameObjects.get(i).setDie(false);
+            }
+        }
+    }
+
+    @Override
+    public void paintElement(Graphics g) {
+        this.paint(g);
+    }
+
+    @Override
+    public void executeElementSpecialField(List<GameObject> elements, FieldActionEnum type, BulletStrategy<GameObject> strategy) {
+        if (type == FieldActionEnum.MOVE) {
+            this.move();
+        } else if (type == FieldActionEnum.FIRE) {
+            this.fire(elements, strategy);
+        }
+    }
+
+    @Override
+    public void resurrection() {
+
+    }
 }

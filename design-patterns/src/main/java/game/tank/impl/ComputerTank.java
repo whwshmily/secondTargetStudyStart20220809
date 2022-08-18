@@ -1,8 +1,8 @@
 package game.tank.impl;
 
-import game.bullet.BaseBullet;
 import game.enumerate.Dir;
 import game.enumerate.TeamGroup;
+import game.face.GameObject;
 import game.strategy.bulletStrategy.BulletStrategy;
 import game.strategy.bulletStrategy.DefaultComputerStrategy;
 import game.tank.BaseTank;
@@ -22,10 +22,10 @@ public class ComputerTank extends BaseTank {
     private Timestamp fireTime;
     private boolean isMoving = true;
     private String name = (int) (Math.random() * 2) == 1 ? "computer" : "player2";
+    private final List<GameObject> gameObjects;
 
-    private final List<BaseBullet> bullets;
 
-    public ComputerTank(TeamGroup teamGroup, List<BaseBullet> bullets) {
+    public ComputerTank(TeamGroup teamGroup,List<GameObject> gameObjects) {
         super(teamGroup);
         dir = Dir.DOWN;
         speed = ComputerTankUtil.getSpeed();
@@ -34,10 +34,13 @@ public class ComputerTank extends BaseTank {
         dirImage = ResourcesUtil.getDirBufferImage("computer", dir.getValue());
         x = ComputerTankUtil.getX(dirImage.getWidth());
         y = Integer.parseInt(ProjectCache.getValue("computer-tank-y"));
-        this.bullets = bullets;
+        this.gameObjects = gameObjects;
     }
 
-    public void paint(Graphics g) {
+    protected void paint(Graphics g) {
+        if(isDie){
+            return;
+        }
         Color color = g.getColor();
         g.setColor(Color.black);
         dirImage = ResourcesUtil.getDirBufferImage(name, dir.getValue());
@@ -48,7 +51,7 @@ public class ComputerTank extends BaseTank {
         this.move();
     }
 
-    public void isChangeDir() {
+    private void isChangeDir() {
         Dir dir = ComputerTankUtil.changeTankDir();
         if (dir != null) {
             this.dir = dir;
@@ -62,7 +65,7 @@ public class ComputerTank extends BaseTank {
             return;
         }
 
-        this.fire(bullets, new DefaultComputerStrategy());
+        this.fire(gameObjects, new DefaultComputerStrategy());
         if (this.dir == Dir.LEFT) {
             if (x < 0) {
                 this.isMoving = false;
@@ -95,7 +98,8 @@ public class ComputerTank extends BaseTank {
         }
     }
 
-    public void fire(List<BaseBullet> bullets, BulletStrategy<BaseTank> strategy) {
+
+    protected void fire(List<GameObject> bullets, BulletStrategy<GameObject> strategy) {
         boolean fire = ComputerTankUtil.isFire();
         if (!fire) {
             return;

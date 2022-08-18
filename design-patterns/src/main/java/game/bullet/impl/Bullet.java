@@ -35,7 +35,7 @@ public class Bullet extends BaseBullet {
         name = teamGroup.equals(TeamGroup.PLAYER) ? "bullet" : "computer_bullet";
     }
 
-    public void paint(Graphics g) {
+    protected void paint(Graphics g) {
         Color color = g.getColor();
         g.setColor(Color.black);
         BufferedImage dirImage = ResourcesUtil.getDirBufferImage(name, dir.getValue());
@@ -46,7 +46,7 @@ public class Bullet extends BaseBullet {
         move();
     }
 
-    public void move() {
+    protected void move() {
         if (dir == Dir.LEFT) {
             x -= speed;
         }

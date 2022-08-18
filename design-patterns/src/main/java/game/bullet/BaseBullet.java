@@ -1,35 +1,56 @@
 package game.bullet;
 
-import game.check.BaseShape;
-import game.enumerate.Dir;
+import game.check.ImpactCheck;
+import game.enumerate.FieldActionEnum;
 import game.enumerate.TeamGroup;
-import lombok.Data;
-import util.ProjectCache;
+import game.face.GameObject;
+import game.strategy.bulletStrategy.BulletStrategy;
 
 import java.awt.*;
+import java.util.List;
 
-@Data
-public abstract class BaseBullet implements BaseShape {
 
-    protected int width;
-    protected int high;
-    protected int speed;
-    protected int x;
-    protected int y;
-    protected Dir dir;
-    protected boolean isDie = false;
-    protected static long FRAME_WIDTH = Long.parseLong(ProjectCache.getValue("frame-width"));
-    protected static long FRAME_HEIGHT = Long.parseLong(ProjectCache.getValue("frame-high"));
-    private final TeamGroup teamGroup;
-    private boolean isLiving;
+public abstract class BaseBullet extends GameObject {
+
 
     public BaseBullet(TeamGroup teamGroup) {
-        this.teamGroup = teamGroup;
+        super(teamGroup);
     }
 
-    public abstract void paint(Graphics g);
+    protected abstract void paint(Graphics g);
 
-    public abstract void move();
+    protected abstract void move();
 
+    @Override
+    public void statusCheck(List<GameObject> gameObjects, ImpactCheck<GameObject> impactCheck) {
+        for (int i = 0; i < gameObjects.size(); i++) {
+            if (gameObjects.get(i) == this) {
+                return;
+            }
+            if (this.teamGroup.equals(gameObjects.get(i).getTeamGroup())) {
+                continue;
+            }
+            boolean collide = impactCheck.isCollide(this, gameObjects.get(i));
+            if (collide) {
+                this.setDie(true);
+                gameObjects.get(i).setDie(true);
+            }
+        }
+    }
+
+    @Override
+    public void paintElement(Graphics g) {
+        this.paint(g);
+    }
+
+    @Override
+    public void executeElementSpecialField(List<GameObject> elements, FieldActionEnum type, BulletStrategy<GameObject> strategy) {
+        this.move();
+    }
+
+    @Override
+    public void resurrection() {
+
+    }
 
 }

@@ -1,8 +1,8 @@
 package game.tank.impl;
 
-import game.bullet.BaseBullet;
 import game.enumerate.Dir;
 import game.enumerate.TeamGroup;
+import game.face.GameObject;
 import game.strategy.bulletStrategy.BulletStrategy;
 import game.tank.BaseTank;
 import util.ProjectCache;
@@ -22,7 +22,6 @@ public class PlayerTank extends BaseTank {
     private boolean up = false;
     private long intervalTime = Long.parseLong(ProjectCache.getValue("player-fire-interval-time"));
     private Timestamp fireTime;
-    private int liveNum;
 
     public PlayerTank(TeamGroup teamGroup) {
         super(teamGroup);
@@ -37,7 +36,10 @@ public class PlayerTank extends BaseTank {
 
 
     @Override
-    public void paint(Graphics g) {
+    protected void paint(Graphics g) {
+        if(isDie){
+            return;
+        }
         Color color = g.getColor();
         g.setColor(Color.black);
         BufferedImage dirImage = ResourcesUtil.getDirBufferImage("player2", dir.getValue());
@@ -48,7 +50,7 @@ public class PlayerTank extends BaseTank {
     }
 
     @Override
-    public void move() {
+    protected void move() {
         if (left) {
             dir = Dir.LEFT;
             if (x > 0)
@@ -72,7 +74,7 @@ public class PlayerTank extends BaseTank {
     }
 
     @Override
-    public void fire(List<BaseBullet> bullets, BulletStrategy<BaseTank> strategy) {
+    protected void fire(List<GameObject> bullets, BulletStrategy<GameObject> strategy) {
         if (fireTime != null && System.currentTimeMillis() - fireTime.getTime() < intervalTime) {
             return;
         } else {
@@ -96,14 +98,6 @@ public class PlayerTank extends BaseTank {
 
     public void setUp(boolean up) {
         this.up = up;
-    }
-
-    public int getLiveNum() {
-        return liveNum;
-    }
-
-    public void setLiveNum(int liveNum){
-        this.liveNum = liveNum;
     }
 
     public void resurrection(){
