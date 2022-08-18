@@ -5,6 +5,7 @@ import game.enumerate.FieldActionEnum;
 import game.enumerate.TeamGroup;
 import game.face.GameObject;
 import game.strategy.bulletStrategy.BulletStrategy;
+import game.tank.impl.PlayerTank;
 
 import java.awt.*;
 import java.util.List;
@@ -33,11 +34,23 @@ public abstract class BaseTank extends GameObject {
             }
             boolean collide = impactCheck.isCollide(this, gameObjects.get(i));
             if (collide) {
-                this.setDie(true);
-                gameObjects.get(i).setDie(true);
+                if (this.getClass() == PlayerTank.class) {
+                    this.setDie(true);
+                    if (!(gameObjects.get(i) instanceof BaseTank)) {
+                        gameObjects.get(i).setDie(true);
+                    }
+                } else if (gameObjects.get(i).getClass() == PlayerTank.class) {
+                    gameObjects.get(i).setDie(true);
+                    if (!(gameObjects.get(i) instanceof BaseTank)) {
+                        this.setDie(true);
+                    }
+                } else {
+                    this.setDie(true);
+                    gameObjects.get(i).setDie(true);
+                }
             }
             if (gameObjects.get(i) instanceof BaseTank && collide) {
-                gameObjects.get(i).setDie(false);
+                this.setDie(false);
             }
         }
     }
