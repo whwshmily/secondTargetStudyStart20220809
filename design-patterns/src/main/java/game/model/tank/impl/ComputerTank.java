@@ -1,11 +1,11 @@
-package game.tank.impl;
+package game.model.tank.impl;
 
 import game.enumerate.Dir;
 import game.enumerate.TeamGroup;
 import game.face.GameObject;
 import game.strategy.bulletStrategy.BulletStrategy;
 import game.strategy.bulletStrategy.DefaultComputerStrategy;
-import game.tank.BaseTank;
+import game.model.tank.BaseTank;
 import util.ComputerTankUtil;
 import util.ProjectCache;
 import util.ResourcesUtil;
@@ -20,10 +20,10 @@ public class ComputerTank extends BaseTank {
     private BufferedImage dirImage;
     private long intervalTime = Long.parseLong(ProjectCache.getValue("computer-fire-interval-time"));
     private Timestamp fireTime;
-    private boolean isMoving = true;
     private String name = (int) (Math.random() * 2) == 1 ? "computer" : "player2";
     private final List<GameObject> gameObjects;
-
+    private int oldX;
+    private int oldY;
 
     public ComputerTank(TeamGroup teamGroup,List<GameObject> gameObjects) {
         super(teamGroup);
@@ -35,6 +35,8 @@ public class ComputerTank extends BaseTank {
         x = ComputerTankUtil.getX(dirImage.getWidth());
         y = Integer.parseInt(ProjectCache.getValue("computer-tank-y"));
         this.gameObjects = gameObjects;
+        this.oldX = x;
+        this.oldY = y;
     }
 
     protected void paint(Graphics g) {
@@ -53,6 +55,9 @@ public class ComputerTank extends BaseTank {
 
     private void isChangeDir() {
         Dir dir = ComputerTankUtil.changeTankDir();
+        if(!this.isMoving && dir == this.dir){
+            this.isChangeDir();
+        }
         if (dir != null) {
             this.dir = dir;
             this.isMoving = true;
@@ -62,6 +67,8 @@ public class ComputerTank extends BaseTank {
     public void move() {
         this.isChangeDir();
         if (!this.isMoving) {
+            this.x = oldX;
+            this.y = oldY;
             return;
         }
 
@@ -70,6 +77,7 @@ public class ComputerTank extends BaseTank {
             if (x < 0) {
                 this.isMoving = false;
             } else {
+                this.oldX = x;
                 x -= speed;
             }
         }
@@ -77,6 +85,7 @@ public class ComputerTank extends BaseTank {
             if (x > FRAME_WIDTH - width) {
                 this.isMoving = false;
             } else {
+                this.oldX =x;
                 x += speed;
             }
         }
@@ -84,6 +93,7 @@ public class ComputerTank extends BaseTank {
             if (y < 0) {
                 this.isMoving = false;
             } else {
+                this.oldY = y;
                 y -= speed;
 
             }
@@ -93,6 +103,7 @@ public class ComputerTank extends BaseTank {
             if (y > FRAME_HEIGHT - high * 2) {
                 this.isMoving = false;
             } else {
+                this.oldY = y;
                 y += speed;
             }
         }

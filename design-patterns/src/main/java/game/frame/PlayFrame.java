@@ -2,16 +2,17 @@ package game.frame;
 
 import game.bullet.impl.Bullet;
 import game.check.ImpactCheck;
+import game.enumerate.Dir;
 import game.enumerate.FieldActionEnum;
 import game.face.DefaultFace;
 import game.face.Face;
 import game.face.GameObject;
+import game.model.tank.BaseTank;
+import game.model.tank.impl.ComputerTank;
+import game.model.tank.impl.PlayerTank;
 import game.strategy.bulletStrategy.BulletStrategy;
 import game.strategy.bulletStrategy.DefaultPlayerStrategy;
 import game.strategy.bulletStrategy.ThreeBulletStrategy;
-import game.tank.BaseTank;
-import game.tank.impl.ComputerTank;
-import game.tank.impl.PlayerTank;
 import util.ProjectCache;
 
 import java.awt.*;
@@ -132,22 +133,31 @@ public class PlayFrame extends Frame {
             boolean result = type == 1;
             int keyCode = e.getKeyCode();
             PlayerTank player1 = (PlayerTank) face.getElement(PlayerTank.class);
+            Dir dir = null;
             switch (keyCode) {
                 case KeyEvent.VK_LEFT:
+                    dir = Dir.LEFT;
                     player1.setLeft(result);
                     break;
                 case KeyEvent.VK_RIGHT:
+                    dir = Dir.RIGHT;
                     player1.setRight(result);
                     break;
                 case KeyEvent.VK_DOWN:
+                    dir = Dir.DOWN;
                     player1.setDown(result);
                     break;
                 case KeyEvent.VK_UP:
+                    dir = Dir.UP;
                     player1.setUp(result);
                     break;
                 case KeyEvent.VK_SPACE:
                     face.executeElementSpecialField(FieldActionEnum.FIRE, getBulletStrategy(player1));
                     break;
+            }
+            if (!player1.isMoving() && player1.getDir() != dir && result) {
+                //TODO
+                player1.setMoving(true);
             }
         }
 

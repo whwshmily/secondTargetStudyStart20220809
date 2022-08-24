@@ -1,10 +1,10 @@
-package game.tank.impl;
+package game.model.tank.impl;
 
 import game.enumerate.Dir;
 import game.enumerate.TeamGroup;
 import game.face.GameObject;
 import game.strategy.bulletStrategy.BulletStrategy;
-import game.tank.BaseTank;
+import game.model.tank.BaseTank;
 import util.ProjectCache;
 import util.ResourcesUtil;
 
@@ -22,6 +22,8 @@ public class PlayerTank extends BaseTank {
     private boolean up = false;
     private long intervalTime = Long.parseLong(ProjectCache.getValue("player-fire-interval-time"));
     private Timestamp fireTime;
+    private int oldX;
+    private int oldY;
 
     public PlayerTank(TeamGroup teamGroup) {
         super(teamGroup);
@@ -32,12 +34,14 @@ public class PlayerTank extends BaseTank {
         y = Integer.parseInt(ProjectCache.getValue("player-tank-y"));
         liveNum = Integer.parseInt(ProjectCache.getValue("player-tank-live-num"));
         dir = Dir.UP;
+        this.oldY = y;
+        this.oldX = x;
     }
 
 
     @Override
     protected void paint(Graphics g) {
-        if(isDie){
+        if (isDie) {
             return;
         }
         Color color = g.getColor();
@@ -51,25 +55,34 @@ public class PlayerTank extends BaseTank {
 
     @Override
     protected void move() {
+        if (!isMoving) {
+//            this.x = oldX;
+//            this.y = oldY;
+            return;
+        }
         if (left) {
             dir = Dir.LEFT;
             if (x > 0)
-                x -= speed;
+                this.oldX = x;
+            x -= speed;
         }
         if (right) {
             dir = Dir.RIGHT;
             if (x < FRAME_WIDTH - width)
-                x += speed;
+                this.oldX = x;
+            x += speed;
         }
         if (up) {
             dir = Dir.UP;
             if (y > high * 1.5)
-                y -= speed;
+                this.oldY = y;
+            y -= speed;
         }
         if (down) {
             dir = Dir.DOWN;
             if (y < FRAME_HEIGHT)
-                y += speed;
+                this.oldY = y;
+            y += speed;
         }
     }
 
@@ -100,7 +113,7 @@ public class PlayerTank extends BaseTank {
         this.up = up;
     }
 
-    public void resurrection(){
+    public void resurrection() {
         width = Integer.parseInt(ProjectCache.getValue("player-tank-width"));
         high = Integer.parseInt(ProjectCache.getValue("player-tank-high"));
         speed = Integer.parseInt(ProjectCache.getValue("player-tank-speed"));

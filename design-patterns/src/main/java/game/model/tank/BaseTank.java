@@ -1,11 +1,11 @@
-package game.tank;
+package game.model.tank;
 
 import game.check.ImpactCheck;
 import game.enumerate.FieldActionEnum;
 import game.enumerate.TeamGroup;
 import game.face.GameObject;
 import game.strategy.bulletStrategy.BulletStrategy;
-import game.tank.impl.PlayerTank;
+import game.model.tank.impl.PlayerTank;
 
 import java.awt.*;
 import java.util.List;

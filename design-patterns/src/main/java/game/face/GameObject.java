@@ -28,6 +28,7 @@ public abstract class GameObject implements BaseShape {
     protected int liveNum;
     protected int speed;
     protected Dir dir;
+    protected boolean isMoving = true;
 
     protected static long FRAME_WIDTH = Long.parseLong(ProjectCache.getValue("frame-width"));
     protected static long FRAME_HEIGHT = Long.parseLong(ProjectCache.getValue("frame-high"));
@@ -44,4 +45,8 @@ public abstract class GameObject implements BaseShape {
 
     public abstract void resurrection();
 
+    @Override
+    public Rectangle getRectangleShape() {
+        return new Rectangle(x, y, width, high);
+    }
 }
