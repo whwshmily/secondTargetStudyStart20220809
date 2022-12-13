@@ -6,7 +6,7 @@ import util.ProjectCache;
 
 import java.util.LinkedList;
 import java.util.List;
-
+//责任链
 public class CheckChain implements ImpactCheck<GameObject> {
 
     private List<ImpactCheck<GameObject>> list = new LinkedList<>();

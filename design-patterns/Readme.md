@@ -75,3 +75,34 @@ sqlserver是微软的 暴露的是ODBC java是JDBC 不能直接连 经过adapter
 抽象和具体两个维度同时发展 互不影响 抽象里面聚合一个具体的实现类
 
 18.command 命令模式 封装命令 实现do和undo(返回上一步 例如idea的ctrl+z)
+
+19.prototype 原型模式 克隆模式 java自带
+原型模式需要cloneable接口(标记型接口 里面没有方法)  重写clone 方法 如果写clone方法没实现接口会报错
+浅克隆 克隆对象时里面的属性如果是对象 克隆出来的对象属性是同一个
+深克隆 不是
+
+20.memento备忘录 记录状态便于回滚 记录某个对象的状态 当你想要回到这个状态 不用一步一步回退 直接回滚
+
+21.templateMethod 模板方法 钩子函数 回调函数 重写一个方法 系统自动帮我们调用
+父类的方法调用了一系列方法 当调用一系列方法时 字类只需要重写这些方法
+
+22.state状态模式 根据状态改变行为  当一个类需要根据状态做出不同的动作 这样不如把state抽象出来
+把类需要做的动作抽象成state 类持有state 调用state里面的方法即可
+不同的state实现不同的子类 持有不同的子类(state)做出不同的行为
+
+23.intepreter 解释器 解释脚本语言
+
+
+
+创建型模式 abstractFactory  builder  factoryMethod prototype  singleton
+结构型模式 adapter bridge  composite decorator facade flyweight Proxy
+行为型模式 责任链 command intepreter iterator mediator memento备忘录 observer
+state strategy templateMethod visitor
+
+面向对象六大原则: 可维护性 可复用性 可扩展性 灵活性
+单一职责  高内聚 低耦合
+开闭原则 对扩展开放 对修改关闭  尽量不改原来的代码进行扩展 抽象化多态是开闭原则的关键
+里氏替换 所有使用父类的方法 必须能够透明的使用子类的对象
+依赖倒置 依赖抽象 而不是依赖具体 面向抽象编程
+接口隔离 每一个接口承担独立的角色 不干自己不该干的事情 避免子类实现不需要的实现的方法 只暴露最小接口
+迪米特 尽量不和陌生人说话 和其他类的耦合度低

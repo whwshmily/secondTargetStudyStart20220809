@@ -7,7 +7,7 @@ import game.strategy.bulletStrategy.BulletStrategy;
 
 import java.awt.*;
 import java.util.List;
-
+//装饰者
 public abstract class Decorator extends GameObject {
     public GameObject go;
 
