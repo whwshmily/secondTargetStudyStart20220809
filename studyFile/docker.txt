@@ -1,0 +1,65 @@
+docker的安装:
+设置仓库  sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+yum-config-manager --add-repo 跟上阿里云的docker下载地址  这个是切换安装源
+sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+安装
+yum install -y docker-ce
+启动
+systemctl start docker
+检测
+sudo docker pull hello-world
+sudo docker run hello-world
+用户登录 阿里云搜索容器镜像服务-个人-访问凭证
+docker login --username=whwsee55 registry.cn-hangzhou.aliyuncs.com
+
+docker pull 镜像名字:版本(版本可不加 默认最新) 从远程拉取镜像
+docker images 镜像名字:版本 查看本地镜像 --后续删除镜像从这里查看
+docker run 镜像名字 启动镜像  如果没有会线拉取后启动 会创建一个容器
+docker ps 查看运行中的镜像 --删除容器从这里获取容器ID  -a查看所有包括没运行的
+docker rm -f(强制删除 正在运行中的) 容器id 删除容器
+docker rmi -f (强制删除) 镜像名字 删除镜像
+
+容器都内置了一个迷你版的虚拟机 然后镜像在这个虚拟机中运行
+
+宿主机和容器直接的通信
+docker run -p 8000:8080 -d(后台运行) --name(给容器一个名字) 镜像名字  把镜像的8080端口映射成(转发)宿主机的8000端口
+
+
+
+在容器中执行命令
+docker exec [-it] 容器ID 命令
+-it 采用交互方式执行命令
+例如命令 /bin/bash 会开启一个接受后续命令的终端 会进入容器里面的系统
+进入容器中的虚拟机
+docker exec -it 容器ID /bin/bash
+
+容器的生命周期
+docker create -- start(running) --pause(暂听) -- unpause(恢复) -- stop(停止重新启动会恢复) 容器ID
+
+docker inspect 容器ID 查看容器的详细信息
+
+dockerfile 镜像描述文件 类似于脚本
+
+docker build -t 机构/镜像名字:版本 dockerfile
+
+容器间单向通信 docker容器都拥有一个虚拟IP 不能被外界访问
+--link 容器名字 容器单向通信
+双向通信  两边彼此link可以实现
+网桥bridge  同一个网桥的容器彼此之间是相通的
+docker network ls 查看容器网络信息
+docker network create bridge 网桥名字 创建一个网桥
+docker network connect 网桥名字 容器名字 容器绑定网桥
+
+容器之间数据共享 数据卷volumes 例如启动多个tomcat 共享同一分数据
+可以在宿主机上创建一个数据卷用来共享
+容器内挂载路径 容器加载的文件
+方式一
+docker run -p 8000:8080 -d(后台运行) --name(给容器一个名字) -v 宿主机路径:容器内挂载路径 镜像名字
+方式二 共享容器挂载点 创建一个容器当作数据点 然后想要共享的都挂载这个容器
+docker create --name 共享容器名字 -v 宿主机路径:容器内挂载路径 镜像名字
+docker run --volumes-from 共享容器名字 镜像名字
+
+docker compose 容器编排工具 只支持单机部署
+
+
+
