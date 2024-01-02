@@ -7,16 +7,23 @@ queue/topic实现Destination
 Destination确定queue或topic 消息的目的地
 Queue 支持存在多个消费者，但是对一个消息而言，只会有一个消费者可以消费、其它 的则不能消费此消息了。 当消费者不存在时，消息会一直保存，直到有消费消费
 topic:基于订阅/发布的消息模型 会给所有的消费者(基于当前的消费者，发送消费消息后连接的消费者获得不到)
+不会落地是无状态的
 
 JMS定义的消息类型有TextMessage、MapMessage、BytesMessage、StreamMessage和ObjectMessage。
+
+事务 在创建session的时候connection.creatSession() 第一个参数 默认是false 设置成ture表示开启事务 如果不commit不会 被消费 持久化
+第二个参数表示消确认机制 自动 手动 迟钝 下面这三个  当开启事务时 第二个参数无效
 
 只有在被确认之后，才认为已经被成功地消费了。
 
 消息的成功消费通常包含三个阶段：客户接收消息、客户处理消息和消息被确认。
+当broker收到消息确认后会删除消息 没有收到ack消息确认他不会认为消息被消费
 
 - Session.AUTO_ACKNOWLEDGE。当客户成功的从receive方法返回的时候，或者从MessageListener.onMessage方法成功返回的时候，会话自动确认客户收到的消息。
 - Session.CLIENT_ACKNOWLEDGE。客户通过消息的acknowledge方法确认消息。需要注意的是，在这种模式中，确认是在会话层上进行：确认一个被消费的消息将自动确认所有已被会话消费的消息。例如，如果一个消息消费者消费了10个消息，然后确认第5个消息，那么所有10个消息都被确认。
+需要手动确认消息，可能消息被重复消费，当我进行手动确认消息时宕机了
 - Session.DUPS_ACKNOWLEDGE。该选择只是会话迟钝的确认消息的提交。如果JMS Provider失败，那么可能会导致一些重复的消息。如果是重复的消息，那么JMS Provider必须把消息头的JMSRedelivered字段设置为true。
+不需要客户端确认
 
 可以使用消息优先级来指示JMS Provider首先提交紧急的消息。
 优先级分10个级别，从0（最低）到9（最高）。如果不指定优先级，默认级别是4。
@@ -85,8 +92,10 @@ Session不必确保对传送消息的签收，这个模式可能会引起消息�
  return new ActiveMQSession(this, this.getNextSessionId(), transacted ? 0 : acknowledgeMode, this.isDispatchAsync(), this.isAlwaysSessionAsync());
 有事务一定要调用session.commit();否则消息发送不出去
 
+设置消息是否持久化 producer.setDeliveryMode(DeliveryMode.)DeliveryMode是个枚举
+
 消息可以设置超时时间，过了超时时间会进入死信队列ActiveMQ.DLQ 持久化的消息才会进入
-非持久化的消息超时也不会进入
+非持久化的消息超时也不会进入--可以改配置
 消费消息过程中异常的消息也会进入死信队列(一个消息被消费6次)
 消费死信队列的消息报错多次也会从死信队列移除
 
@@ -99,7 +108,7 @@ Session不必确保对传送消息的签收，这个模式可能会引起消息�
     </deadLetterStrategy>
 </policyEntry>
 
-过期消息不进死信队列
+过期消息不进死信队列---开启持久化也不会进入死信队列
 <individualDeadLetterStrategy   processExpired="false"  />
 
 非持久化的消息进入死信队列
