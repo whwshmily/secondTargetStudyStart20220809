@@ -15,5 +15,9 @@ public class TreeNode<T> {
 
     private TreeNode<T> right;
 
+    public TreeNode(T value) {
+        this.value = value;
+    }
+
 
 }
