@@ -80,7 +80,7 @@ public class RingProblem {
     /**
      * 两个都成环
      * 三种情况
-     * 当loop1 != loop2
+     * 当loop1 != loop2 有两种情况
      * 不相交
      * 相交点在环上
      * 这两种情况  从loop1开始找 如果再次回到loop1的位置都没有碰到loop2 就不相交
