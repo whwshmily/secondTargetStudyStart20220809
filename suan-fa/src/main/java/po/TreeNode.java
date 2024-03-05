@@ -1,10 +1,9 @@
 package po;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
+//@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class TreeNode<T> {
@@ -19,5 +18,27 @@ public class TreeNode<T> {
         this.value = value;
     }
 
+    public T getValue() {
+        return value;
+    }
 
+    public void setValue(T value) {
+        this.value = value;
+    }
+
+    public TreeNode<T> getLeft() {
+        return left;
+    }
+
+    public void setLeft(TreeNode<T> left) {
+        this.left = left;
+    }
+
+    public TreeNode<T> getRight() {
+        return right;
+    }
+
+    public void setRight(TreeNode<T> right) {
+        this.right = right;
+    }
 }

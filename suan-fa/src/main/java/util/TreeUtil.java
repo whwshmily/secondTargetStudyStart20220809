@@ -4,6 +4,8 @@ import po.TreeNode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class TreeUtil {
 
@@ -22,13 +24,13 @@ public class TreeUtil {
         for (int i = 1; i < length; i++) {
             TreeNode<Integer> node = getRandomNode(nodes, i);
             int value = (int) (Math.random() * maxValue);
-            if(node.getLeft() == null){
+            if (node.getLeft() == null) {
                 TreeNode<Integer> leftNode = new TreeNode<Integer>(value);
                 nodes.add(leftNode);
                 node.setLeft(leftNode);
                 continue;
             }
-            if(node.getRight() == null){
+            if (node.getRight() == null) {
                 TreeNode<Integer> rightNode = new TreeNode<Integer>(value);
                 nodes.add(rightNode);
                 node.setRight(rightNode);
@@ -43,10 +45,30 @@ public class TreeUtil {
         }
         int randomIndex = (int) (Math.random() * index);
         TreeNode<Integer> node = nodes.get(randomIndex);
-        if(node.getRight() != null && node.getLeft() != null){
-            node = getRandomNode(nodes,index);
+        if (node.getRight() != null && node.getLeft() != null) {
+            node = getRandomNode(nodes, index);
         }
         return node;
+    }
+
+    public static List<TreeNode> getNodeList(TreeNode head) {
+        if (head == null) {
+            return new ArrayList<TreeNode>();
+        }
+        List<TreeNode> result = new ArrayList<TreeNode>();
+        Queue<TreeNode> queue = new LinkedBlockingQueue<TreeNode>();
+        queue.add(head);
+        while (!queue.isEmpty()) {
+            TreeNode poll = queue.poll();
+            result.add(poll);
+            if (poll.getLeft() != null) {
+                queue.add(poll.getLeft());
+            }
+            if (poll.getRight() != null) {
+                queue.add(poll.getRight());
+            }
+        }
+        return result;
     }
 
 }
