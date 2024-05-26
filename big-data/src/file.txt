@@ -1,9 +1,20 @@
 大数据:分而治之，并行计算，计算向数据移动，数据本地化读取
 
-Hadoop
+Hadoop --解决海量数据存储和计算分析问题 包含三种核心组件
+HDFS--分布式文件存储系统 解决海量数据存储问题
+yarn--集群资源管理和任务调度框架 解决资源任务调度问题
+mapreduce 分布式计算框架 海量计算问题
 
-hdfs--文件系统
- 文件线性按照字节切割成块block 具有offset id
+hdfs特点:
+适合存储大规模的数据 适合一次写入 多次读取
+文件按照字节切分多个block块 每个块默认128M
+每个block块默认有三个副本 提高容错性 如果一个块丢失 后续可以自动恢复
+适合大文件写入 不适合大量小文件写入
+多线程只能有一个线程写入 不能同时写
+写入后不支持修改 只能追加
+
+hdfs--文件系统  主从架构
+ 文件线性按照字节切割成块block 默认128M 查找block块寻找大概10ms 具有offset id
  文件于文件的block大小可以不一致---感觉有问题，和下一条冲突 只是最后一块可以不一致
  一个文件除最后一个block，其他大小一致---最后一个可能没有这么多了
  block的大小依据硬件的I/O调整 IO每秒读取速度决定大小
@@ -18,15 +29,20 @@ hdfs--文件系统
 架构模型是主从架构--主节点不存储block只记录存到那个从节点
 由一个nameNode(主)和dataNode(从)组成
 面向文件: 文件数据(data)和文件元数据(metadata)
-nameNode存储和管理元数据 并维护一个目录树
+nameNode存储和管理元数据 并维护一个目录树  由两个组件管理 Editlog和FsImage
 dataNode存储文件数据(block) 并负责读写 和nameNode维持心跳
 
 nameNode是基于内存存储数据 元数据 目录树 block关系映射 持久化(日志+快照)  副本防止策略
 dataNode 基于本地磁盘存储block 并保持block的校验和可靠性 于nameNode保持心跳 汇报块信息
+启动时汇报 默认6小时汇报一次
 
 HDFS搭建是会格式化  将会产生一个空的FsImage
 当nameNode启动时 会从硬盘读完Editlog和FsImage 并将editlog作用大内存的FsImage上 然后写会硬盘的FsImage
 删除editlog 因为已经持久化到FsImage上了
+Editlog--集群启动之后所有的指令都会记录到这里 保证数据不丢失
+FsImage 存储当前的HDFS中文件属性(文件名称、路径、权限关系。副本数。访问时间等等) 当HDFS启动后
+首先将磁盘的FsImage加载到内存中 FsImage不存储block所在的datanode的信息 这些信息是由HDFS启动后
+datanode周期通过心跳向namenode报告
 
 nameNode启动时会进入安全模式的特殊状态
 处于安全模式的NameNode不会进行数据的复制
@@ -42,7 +58,16 @@ namenode保存元数据(文件属性，块的位置) 块的位置信息是不会
 
 SND--secondaryNameNode
 在非Ha(一个namenode)下，SND是独立的节点周期的完成editlog和FsImage合并
-默认3600一次 editlog默认64MB(没到3600秒文件到达64MB也会合并)
+默认3600s一次 editlog默认64MB(没到3600秒文件到达64MB也会合并) 操作一百万次也会(一分钟检查一次)
+
+clent  和namenode 和datanode交互
+负责切片 上传
+
+安全模式--元数据只读操作 当集群启动时 会进入安全模式
+namenode会加载FsImage 和editlog
+SND 会对FsImage 和editlog 合并
+等datanode上传块信息 直到副本数满足最小副本条件--整个文件系统有99.9%block达到了最小副本数 默认1
+30s后退出安全模式
 
 
 副本放置策略 机架服务器 ---横长高扁扁的  多个机架服务器可以放在一个柜子上 不同柜子之间的机架服务器通过
